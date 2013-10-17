@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.8">
+      <projectUrl>https://github.com/ducksmanager/DucksManager/</projectUrl>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.5.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <name></name>
+        <refspec></refspec>
+        <url>https://github.com/ducksmanager/DucksManager.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <disableSubmodules>true</disableSubmodules>
+    <recursiveSubmodules>false</recursiveSubmodules>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <authorOrCommitter>false</authorOrCommitter>
+    <clean>false</clean>
+    <wipeOutWorkspace>false</wipeOutWorkspace>
+    <pruneBranches>false</pruneBranches>
+    <remotePoll>false</remotePoll>
+    <ignoreNotifyCommit>false</ignoreNotifyCommit>
+    <useShallowClone>false</useShallowClone>
+    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    <gitTool>Default</gitTool>
+    <submoduleCfg class="list"/>
+    <relativeTargetDir></relativeTargetDir>
+    <reference></reference>
+    <excludedRegions></excludedRegions>
+    <excludedUsers></excludedUsers>
+    <gitConfigName>Bruno Perel</gitConfigName>
+    <gitConfigEmail>admin@ducksmanager.net</gitConfigEmail>
+    <skipTag>false</skipTag>
+    <includedRegions></includedRegions>
+    <scmName></scmName>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>/var/www/DucksManager</customWorkspace>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>rm -rf files changeset.xml changeset.txt
+
+wget &quot;$JENKINS_URL/api/xml?depth=2&amp;xpath=/hudson/job[name=&apos;$JOB_NAME&apos;]/build[id=&apos;$BUILD_ID&apos;]/changeSet&quot; --output-document=changeset.xml
+
+xpath -q -e &quot;//changeSet/item/path/file[not(../editType/text() = &quot;delete&quot;)]/text()&quot; changeset.xml | uniq &gt; changeset.txt
+
+mkdir files
+cd files
+
+BASE=raw.github.com/ducksmanager/DucksManager/master/
+mkdir -p $BASE
+
+wget -xi ../changeset.txt --base=https://$BASE
+
+
+ls -la $BASE</command>
+    </hudson.tasks.Shell>
+    <jenkins.plugins.publish__over__ftp.BapFtpBuilder plugin="publish-over-ftp@1.9">
+      <delegate>
+        <consolePrefix>FTP: </consolePrefix>
+        <delegate>
+          <publishers>
+            <jenkins.plugins.publish__over__ftp.BapFtpPublisher>
+              <configName>ducksmanager.net</configName>
+              <verbose>false</verbose>
+              <transfers>
+                <jenkins.plugins.publish__over__ftp.BapFtpTransfer>
+                  <remoteDirectory></remoteDirectory>
+                  <sourceFiles>files/raw.github.com/ducksmanager/DucksManager/master/**</sourceFiles>
+                  <excludes></excludes>
+                  <removePrefix>files/raw.github.com/ducksmanager/DucksManager/master/</removePrefix>
+                  <remoteDirectorySDF>false</remoteDirectorySDF>
+                  <flatten>false</flatten>
+                  <cleanRemote>false</cleanRemote>
+                  <noDefaultExcludes>false</noDefaultExcludes>
+                  <makeEmptyDirs>false</makeEmptyDirs>
+                  <patternSeparator>[, ]+</patternSeparator>
+                  <asciiMode>false</asciiMode>
+                </jenkins.plugins.publish__over__ftp.BapFtpTransfer>
+              </transfers>
+              <useWorkspaceInPromotion>false</useWorkspaceInPromotion>
+              <usePromotionTimestamp>false</usePromotionTimestamp>
+            </jenkins.plugins.publish__over__ftp.BapFtpPublisher>
+          </publishers>
+          <continueOnError>false</continueOnError>
+          <failOnError>false</failOnError>
+          <alwaysPublishFromMaster>false</alwaysPublishFromMaster>
+          <hostConfigurationAccess class="jenkins.plugins.publish_over_ftp.BapFtpPublisherPlugin" reference="../.."/>
+        </delegate>
+      </delegate>
+    </jenkins.plugins.publish__over__ftp.BapFtpBuilder>
+    <hudson.tasks.Shell>
+      <command>rm -rf files changeset.xml changeset.txt</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
