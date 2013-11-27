@@ -15,7 +15,7 @@
     </com.cloudbees.jenkins.GitHubPushTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>/var/www/ci/DM</customWorkspace>
+  <customWorkspace>/var/www/ci/DM/EdgeCreator</customWorkspace>
   <builders>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets></targets>
